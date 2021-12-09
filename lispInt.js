@@ -29,7 +29,7 @@ function parse(input) {
 	return readFromTokens(tokenize(input));
 }
 
-var global_env = {
+let global_env = {
   '+': function (a, b) { return a+b },
   '-': function (a, b) { if (b == null) return -a; return a - b },
   '*': function (a, b) { return a * b },
@@ -39,8 +39,8 @@ var global_env = {
   '<': function (a, b) { return a < b },
   '<=': function (a, b) { return a <= b },
   '%': function(a, b) {return a % b },
-  'pi': function () { return 3.14 },
-  'pow': function (a, b) { return Math.pow(a,b) },
+  'pi' : 3.14,
+  'pow' : function (a, b) { return Math.pow(a,b) },
   'length': function (a) { return a.length },
   'abs': function (a) { return Math.abs(a) },
   'append': function (a, b) { return String(a)+String(b) },
@@ -57,8 +57,10 @@ var global_env = {
   'number?': function (a) { return !isNaN(a) }
 }
 
-function eval(x, env) {
-  env = global_env;
+function evaluate(x, env) {
+
+  env = env || global_env;
+
   if(typeof(x) === "string") {
     if(x in env) return env[x];
   }
@@ -68,36 +70,58 @@ function eval(x, env) {
   }
 
   else if(x[0] === "define") {
-    env[x[1]] = eval(x[2], env);
+    env[x[1]] = evaluate(x[2], env);
   }
 
   else if(x[0] === "if") {
     const test = x[1];
     const conseq = x[2];
     const alt = x[3];
-    if(eval(test, env)) 
-      return eval(conseq, env);
-    return eval(alt, env);
+    if(evaluate(test, env)) 
+      return evaluate(conseq, env);
+    return evaluate(alt, env);
   }
 
   else if(x[0] === "begin") {
     let value;
     for(let i=1; i<x.length; i++){
-      value = eval(x[i], env)
+      value = evaluate(x[i], env)
     }
     return value;
   }
 
-  else {
-  let expr = [];
-  for(let i=0; i<x.length; i++){
-    expr[i] = eval(x[i], env);
+  else if(x[0] === "quote") {
+    return x[1];
   }
-  const proc = expr.shift();
-  return proc(...expr);
+
+  else if(x[0] === "set!") {
+    if(x[1] in env) {
+     env[x[1]] = evaluate(x[2], env);
+    }
+  }
+
+  else if(x[0] === "lambda") {
+    let params = x[1];
+    return (
+      function(args) {
+        for (let i = 0; i < params.length; i++) {
+          env[params[i]] = args;
+        }
+        return (evaluate(x[2], env))
+      }
+    )
+  }
+
+  else {
+    let expr = [];
+    for(let i=0; i<x.length; i++){
+      expr[i] = evaluate(x[i], env);
+    }
+    const proc = expr.shift();
+    return proc(...expr);
   }
 }
 
-program = '(begin (define r 3) (* 3.14 (* r r)))'
-console.log(eval(parse(program)));
-
+evaluate(parse('(define repeat (lambda (f) (lambda (x) (f (f x)))))'));
+evaluate(parse('(define twice (lambda (x) (* 2 x)))'));
+console.log(evaluate(parse('((repeat twice) 10)')))
