@@ -104,8 +104,10 @@ function evaluate(x, env) {
     let params = x[1];
     return (
       function(args) {
-        for (let i = 0; i < params.length; i++) {
-          env[params[i]] = args[i];
+        if(!Array.isArray(args)) env[params[0]] = args;
+        else {
+          for (let i = 0; i < params.length; i++) 
+            env[params[i]] = args[i];
         }
         return (evaluate(x[2], env))
       }
@@ -125,6 +127,6 @@ function evaluate(x, env) {
   }
 }
 
-evaluate(parse('(define mult (lambda (x y z) (* x y z)))'));
+evaluate(parse('(define mult (lambda (x y z) (* x (* y z))))'));
 
 console.log(evaluate(parse('(mult (2 3 4))')))
