@@ -105,7 +105,7 @@ function evaluate(x, env) {
     return (
       function(args) {
         for (let i = 0; i < params.length; i++) {
-          env[params[i]] = args;
+          env[params[i]] = args[i];
         }
         return (evaluate(x[2], env))
       }
@@ -117,11 +117,14 @@ function evaluate(x, env) {
     for(let i=0; i<x.length; i++){
       expr[i] = evaluate(x[i], env);
     }
-    const proc = expr.shift();
-    return proc(...expr);
+    if(typeof(expr[0]) === "function"){
+      const proc = expr.shift();
+      return proc(...expr);
+    }
+    else { return expr; }
   }
 }
 
-evaluate(parse('(define repeat (lambda (f) (lambda (x) (f (f x)))))'));
-evaluate(parse('(define twice (lambda (x) (* 2 x)))'));
-console.log(evaluate(parse('((repeat twice) 10)')))
+evaluate(parse('(define mult (lambda (x y z) (* x y z)))'));
+
+console.log(evaluate(parse('(mult (2 3 4))')))
