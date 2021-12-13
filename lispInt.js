@@ -30,82 +30,35 @@ function parse (input) {
 }
 
 const global_env = {
-  '+': function (a, b) {
-    return a + b
-  },
-  '-': function (a, b) {
-    if (b == null) return -a
-    return a - b
-  },
-  '*': function (a, b) {
-    return a * b
-  },
-  '/': function (a, b) {
-    return a / b
-  },
-  '>': function (a, b) {
-    return a > b
-  },
-  '>=': function (a, b) {
-    return a >= b
-  },
-  '<': function (a, b) {
-    return a < b
-  },
-  '<=': function (a, b) {
-    return a <= b
-  },
-  '%': function (a, b) {
-    return a % b
-  },
+  '+': (a, b) => a + b,
+  '-': (a, b) => (b === null ? -a : a - b),
+  '*': (a, b) => a * b,
+  '/': (a, b) => a / b,
+  '>': (a, b) => a > b,
+  '>=': (a, b) => a >= b,
+  '<': (a, b) => a < b,
+  '<=': (a, b) => a <= b,
+  '%': (a, b) => a % b,
   pi: 3.14,
-  pow: function (a, b) {
-    return Math.pow(a, b)
-  },
-  length: function (a) {
-    return a.length
-  },
-  abs: function (a) {
-    return Math.abs(a)
-  },
-  append: function (a, b) {
-    return String(a) + String(b)
-  },
-  'eq?': function (a, b) {
-    return a == b
-  },
-  'equal?': function (a, b) {
-    return a === b
-  },
-  car: function (a) {
-    return a[0]
-  },
-  cdr: function (a) {
-    return a.slice(1)
-  },
-  cons: function (a, b) {
+  pow: (a, b) => Math.pow(a, b),
+  length: a => a.length,
+  abs: a => Math.abs(a),
+  append: (a, b) => String(a) + String(b),
+  'eq?': (a, b) => a == b,
+  'equal?': (a, b) => a === b,
+  car: a => a[0],
+  cdr: a => a.slice(1),
+  cons: (a, b) => {
     a.concat(b)
     return a
   },
-  sqrt: function (a) {
-    return Math.sqrt(a)
-  },
-  max: function (a) {
-    return Math.max(a)
-  },
-  min: function (a) {
-    return Math.min(a)
-  },
-  round: function (a) {
-    return Math.round(a)
-  },
-  not: function (a) {
-    return !a
-  },
-  'number?': function (a) {
-    return !isNaN(a)
-  },
-  find: function (a) {
+  sqrt: a => Math.sqrt(a),
+  max: a => Math.max(a),
+  min: a => Math.min(a),
+  round: a => Math.round(a),
+  not: a => !a,
+  'number?': a => !isNaN(a),
+  find: a => {
     if (a in global_env) return global_env
     else return null
   }
@@ -172,20 +125,19 @@ function evaluate (x, env) {
     }
   }
 
-  let expr = []
+  let expression = []
   for (let i = 0; i < x.length; i++) {
-    expr[i] = evaluate(x[i], env)
+    expression[i] = evaluate(x[i], env)
   }
-  if (typeof expr[0] === 'function') {
-    const proc = expr.shift()
-    return proc(...expr)
+  if (typeof expression[0] === 'function') {
+    const proc = expression.shift()
+    return proc(...expression)
   }
-  return expr
+  return expression
 }
 
 const repl = require('repl')
 function myEval (cmd, context, filename, callback) {
   callback(null, evaluate(parse(cmd)))
 }
-
 repl.start({ prompt: '> ', eval: myEval })
