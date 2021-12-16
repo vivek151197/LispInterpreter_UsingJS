@@ -43,15 +43,8 @@ const global_env = {
   pow: (a, b) => Math.pow(a, b),
   length: a => a.length,
   abs: a => Math.abs(a),
-  append: (a, b) => String(a) + String(b),
   'eq?': (a, b) => a == b,
   'equal?': (a, b) => a === b,
-  car: a => a[0],
-  cdr: a => a.slice(1),
-  cons: (a, b) => {
-    a.concat(b)
-    return a
-  },
   sqrt: a => Math.sqrt(a),
   max: a => Math.max(a),
   min: a => Math.min(a),
